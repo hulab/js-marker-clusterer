@@ -69,20 +69,24 @@ function MarkerClusterer(map, markers, options) {
 
 	this.setMap(map);
 
-	this.prevZoom_ = this.map_.getZoom();
-
-	// Add the map event listeners
 	var that = this;
-	google.maps.event.addListener(this.map_, 'zoom_changed', function() {
-		var zoom = that.map_.getZoom();
 
-		if (that.prevZoom_ != zoom) {
-			that.prevZoom_ = zoom;
-			that.resetViewport();
+	var prevZoom = this.map_.getZoom();
+	var zoomChanged = false;
+	google.maps.event.addListener(this.map_, 'zoom_changed', function () {
+		var zoom = that.map_.getZoom();
+		if (zoom != zoomChanged) {
+			zoomChanged = true;
 		}
 	});
-	google.maps.event.addListener(this.map_, 'idle', function() {
-		that.redraw();
+
+	// Add the map event listeners
+	google.maps.event.addListener(this.map_, 'idle', function () {
+		if (zoomChanged) {
+			that.repaint();
+		} else {
+			that.redraw();
+		}
 	});
 
 	// Finally, add the markers
